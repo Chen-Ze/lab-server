@@ -1,6 +1,8 @@
 import { RandomNumberRecipe } from "material-science-experiment-recipes/lib/random-number-recipe";
 import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { RawDataRow } from "../experiment";
+import { Controller } from "../controller/controller";
+import { ISignal } from "ste-signals";
+import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
 
 
@@ -8,10 +10,15 @@ const getRandomArbitrary = (min: number, max: number) => {
     return Math.random() * (max - min) + min;
 }
 
-export const randomNumberExperimenter = async (recipe: RandomNumberRecipe, subsequence: WrappedRecipe[], onData: (data: RawDataRow) => void) => {
+export const randomNumberExperimenter = async (recipe: RandomNumberRecipe, subsequence: WrappedRecipe[], onData: (data: RawDataRow) => void, onHalt: ISignal, controller: Controller) => {
+    let haltFlag = false;
+    const unsubscribe = onHalt.subscribe(() => haltFlag = true);
+
     const publicRows: RawDataRow[] = [];
 
     for (let i = 0; i < Number(recipe.count); i++) {
+        if (haltFlag) break;
+
         const rawRow = Object.fromEntries([
             ...recipe.generators.map(generator =>
                 [generator.name, getRandomArbitrary(Number(generator.min), Number(generator.max))]
@@ -28,11 +35,13 @@ export const randomNumberExperimenter = async (recipe: RandomNumberRecipe, subse
         ));
 
         for (const subrecipe of subsequence) {
-            await experimentExecuter(subrecipe, onData);
+            if (haltFlag) break;
+            await experimentExecuter(subrecipe, onData, onHalt, controller);
         }
 
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     publicRows.forEach(row => onData(row));
+    unsubscribe();
 }

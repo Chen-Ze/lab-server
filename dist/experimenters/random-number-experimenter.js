@@ -50,7 +50,7 @@ var experiment_executer_1 = require("./experiment-executer");
 var getRandomArbitrary = function (min, max) {
     return Math.random() * (max - min) + min;
 };
-var randomNumberExperimenter = function (recipe, subsequence, onData, onHalt) { return __awaiter(void 0, void 0, void 0, function () {
+var randomNumberExperimenter = function (recipe, subsequence, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
     var haltFlag, unsubscribe, publicRows, _loop_1, i, state_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -87,7 +87,7 @@ var randomNumberExperimenter = function (recipe, subsequence, onData, onHalt) { 
                                 subrecipe = subsequence_1[_i];
                                 if (haltFlag)
                                     return [3 /*break*/, 4];
-                                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt)];
+                                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller)];
                             case 2:
                                 _b.sent();
                                 _b.label = 3;

@@ -40,4 +40,8 @@ export class Experiments {
     public getExperimentById(id: string) {
         return this.experiments[id];
     }
+
+    public halt(id: string) {
+        this.experiments[id]?.halt();
+    }
 }

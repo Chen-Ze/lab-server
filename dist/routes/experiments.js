@@ -37,6 +37,10 @@ var Experiments = /** @class */ (function () {
     Experiments.prototype.getExperimentById = function (id) {
         return this.experiments[id];
     };
+    Experiments.prototype.halt = function (id) {
+        var _a;
+        (_a = this.experiments[id]) === null || _a === void 0 ? void 0 : _a.halt();
+    };
     return Experiments;
 }());
 exports.Experiments = Experiments;

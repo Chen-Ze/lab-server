@@ -36,34 +36,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commanderExperimenter = void 0;
-var experiment_executer_1 = require("./experiment-executer");
-var commanderExperimenter = function (recipe, subsequence, onData, onHalt) { return __awaiter(void 0, void 0, void 0, function () {
-    var haltFlag, unsubscribe, _i, subsequence_1, subrecipe;
+exports.experimentExecuter = void 0;
+var commander_recipe_1 = require("material-science-experiment-recipes/lib/commander-recipe");
+var random_number_recipe_1 = require("material-science-experiment-recipes/lib/random-number-recipe");
+var commander_experimenter_1 = require("./commander-experimenter");
+var random_number_experimenter_1 = require("./random-number-experimenter");
+var keithley_2636_simple_recipe_1 = require("material-science-experiment-recipes/lib/keithley-2636-simple-recipe");
+var keithley_2600_simple_experimenter_1 = require("./keithley-2600-simple-experimenter");
+var keithley_2400_simple_experimenter_1 = require("./keithley-2400-simple-experimenter");
+var keithley_2400_simple_recipe_1 = require("material-science-experiment-recipes/lib/keithley-2400-simple-recipe");
+var experimentExecuter = function (recipe, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                haltFlag = false;
-                unsubscribe = onHalt.subscribe(function () { return haltFlag = true; });
-                _i = 0, subsequence_1 = subsequence;
-                _a.label = 1;
+                if (!(0, random_number_recipe_1.isRandomNumberRecipe)(recipe.recipe)) return [3 /*break*/, 2];
+                return [4 /*yield*/, (0, random_number_experimenter_1.randomNumberExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
             case 1:
-                if (!(_i < subsequence_1.length)) return [3 /*break*/, 4];
-                subrecipe = subsequence_1[_i];
-                if (haltFlag)
-                    return [3 /*break*/, 4];
-                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt)];
-            case 2:
                 _a.sent();
-                _a.label = 3;
-            case 3:
-                _i++;
-                return [3 /*break*/, 1];
-            case 4:
-                unsubscribe();
                 return [2 /*return*/];
+            case 2:
+                if (!(0, commander_recipe_1.isCommanderRecipe)(recipe.recipe)) return [3 /*break*/, 4];
+                return [4 /*yield*/, (0, commander_experimenter_1.commanderExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+            case 3:
+                _a.sent();
+                return [2 /*return*/];
+            case 4:
+                if (!(0, keithley_2636_simple_recipe_1.isKeithley2636SimpleRecipe)(recipe.recipe)) return [3 /*break*/, 6];
+                return [4 /*yield*/, (0, keithley_2600_simple_experimenter_1.keithley2600SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+            case 5:
+                _a.sent();
+                return [2 /*return*/];
+            case 6:
+                if (!(0, keithley_2400_simple_recipe_1.isKeithley2400SimpleRecipe)(recipe.recipe)) return [3 /*break*/, 8];
+                return [4 /*yield*/, (0, keithley_2400_simple_experimenter_1.keithley2400SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+            case 7:
+                _a.sent();
+                return [2 /*return*/];
+            case 8: return [2 /*return*/];
         }
     });
 }); };
-exports.commanderExperimenter = commanderExperimenter;
-//# sourceMappingURL=commander-experimenter.js.map
+exports.experimentExecuter = experimentExecuter;
+//# sourceMappingURL=experiment-executer.js.map

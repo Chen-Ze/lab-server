@@ -2,7 +2,8 @@ import { SignalDispatcher, SimpleEventDispatcher } from "strongly-typed-events";
 import AwaitLock from 'await-lock';
 import { v4 as uuidv4 } from 'uuid';
 import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { experimentExecuter } from "./experimenters/experiment-executer";
+import { experimentExecuter } from "../experimenters/experiment-executer";
+import { Controller } from "../controller/controller";
 
 export enum ExperimentStatus {
     Created = 'Created',
@@ -36,12 +37,16 @@ export class Experiment {
     private _onDataJot = new SimpleEventDispatcher<Response>();
     private _onStarted = new SignalDispatcher();
     private _onTerminated = new SignalDispatcher();
+    private _onHalt = new SignalDispatcher();
 
-    constructor(id: string, recipe: WrappedRecipe) {
+    private controller: Controller;
+
+    constructor(id: string, recipe: WrappedRecipe, controller: Controller) {
         this.id = id;
         this.status = ExperimentStatus.Created;
         this.data = [];
         this.recipe = recipe;
+        this.controller = controller;
     }
 
     public async signal() {
@@ -75,7 +80,7 @@ export class Experiment {
                 data: this.data,
                 status: this.status
             });
-        })
+        }, this.onHalt, this.controller)
 
         await this.statusLock.acquireAsync();
         try {
@@ -101,6 +106,14 @@ export class Experiment {
         } finally {
             this.statusLock.release();
         }
+    }
+
+    public get onHalt() {
+        return this._onHalt.asEvent();
+    }
+
+    public halt() {
+        this._onHalt.dispatch();
     }
 
     public getStatus() {

@@ -41,18 +41,18 @@ var commander_recipe_1 = require("material-science-experiment-recipes/lib/comman
 var random_number_recipe_1 = require("material-science-experiment-recipes/lib/random-number-recipe");
 var commander_experimenter_1 = require("./commander-experimenter");
 var random_number_experimenter_1 = require("./random-number-experimenter");
-var experimentExecuter = function (recipe, onData) { return __awaiter(void 0, void 0, void 0, function () {
+var experimentExecuter = function (recipe, onData, onHalt) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 if (!(0, random_number_recipe_1.isRandomNumberRecipe)(recipe.recipe)) return [3 /*break*/, 2];
-                return [4 /*yield*/, (0, random_number_experimenter_1.randomNumberExperimenter)(recipe.recipe, recipe.subsequence, onData)];
+                return [4 /*yield*/, (0, random_number_experimenter_1.randomNumberExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt)];
             case 1:
                 _a.sent();
                 return [2 /*return*/];
             case 2:
                 if (!(0, commander_recipe_1.isCommanderRecipe)(recipe.recipe)) return [3 /*break*/, 4];
-                return [4 /*yield*/, (0, commander_experimenter_1.commanderExperimenter)(recipe.recipe, recipe.subsequence, onData)];
+                return [4 /*yield*/, (0, commander_experimenter_1.commanderExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt)];
             case 3:
                 _a.sent();
                 return [2 /*return*/];

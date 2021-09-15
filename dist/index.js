@@ -8,10 +8,15 @@ var path_1 = __importDefault(require("path"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var server_1 = require("./routes/server");
 var compression_1 = __importDefault(require("compression"));
+var fs_1 = __importDefault(require("fs"));
 dotenv_1.default.config();
 var app = (0, express_1.default)();
 app.use((0, compression_1.default)());
 var port = Number(process.env.PORT); // default port to listen
+if (!process.env.BUILD_LOCATION || !fs_1.default.existsSync(path_1.default.join(process.env.BUILD_LOCATION, 'index.html'))) {
+    throw new Error("Client build not found.");
+}
+app.use(express_1.default.static(path_1.default.resolve(process.env.BUILD_LOCATION)));
 app.use(express_1.default.json());
 // app.use(logger('dev'));
 app.use('/', server_1.router);

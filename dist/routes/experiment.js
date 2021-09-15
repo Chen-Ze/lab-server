@@ -54,7 +54,7 @@ exports.Experiment = exports.ExperimentStatus = void 0;
 var strongly_typed_events_1 = require("strongly-typed-events");
 var await_lock_1 = __importDefault(require("await-lock"));
 var uuid_1 = require("uuid");
-var experiment_executer_1 = require("./experimenters/experiment-executer");
+var experiment_executer_1 = require("../experimenters/experiment-executer");
 var ExperimentStatus;
 (function (ExperimentStatus) {
     ExperimentStatus["Created"] = "Created";
@@ -62,15 +62,17 @@ var ExperimentStatus;
     ExperimentStatus["Terminated"] = "Terminated";
 })(ExperimentStatus = exports.ExperimentStatus || (exports.ExperimentStatus = {}));
 var Experiment = /** @class */ (function () {
-    function Experiment(id, recipe) {
+    function Experiment(id, recipe, controller) {
         this.statusLock = new await_lock_1.default();
         this._onDataJot = new strongly_typed_events_1.SimpleEventDispatcher();
         this._onStarted = new strongly_typed_events_1.SignalDispatcher();
         this._onTerminated = new strongly_typed_events_1.SignalDispatcher();
+        this._onHalt = new strongly_typed_events_1.SignalDispatcher();
         this.id = id;
         this.status = ExperimentStatus.Created;
         this.data = [];
         this.recipe = recipe;
+        this.controller = controller;
     }
     Experiment.prototype.signal = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -116,7 +118,7 @@ var Experiment = /** @class */ (function () {
                                     data: _this.data,
                                     status: _this.status
                                 });
-                            })];
+                            }, this.onHalt, this.controller)];
                     case 1:
                         _a.sent();
                         return [4 /*yield*/, this.statusLock.acquireAsync()];
@@ -162,6 +164,16 @@ var Experiment = /** @class */ (function () {
                 }
             });
         });
+    };
+    Object.defineProperty(Experiment.prototype, "onHalt", {
+        get: function () {
+            return this._onHalt.asEvent();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Experiment.prototype.halt = function () {
+        this._onHalt.dispatch();
     };
     Experiment.prototype.getStatus = function () {
         return this.status;

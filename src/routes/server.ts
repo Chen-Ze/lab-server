@@ -3,16 +3,23 @@ import axios from 'axios';
 import { getRandomId } from '../util';
 import { Experiment } from './experiment';
 import { Experiments } from './experiments';
+import { Controller } from '../controller/controller';
+import dotenv from 'dotenv';
+
+
+dotenv.config();
+
+const DEFAULT_CONTROLLER_URL = process.env.CONTROLLER_ADDRESS;
+
+const controller = new Controller(DEFAULT_CONTROLLER_URL);
 
 export const router = express.Router();
 
-router.get('/server/available-addresses', (req, res, next) => {
+router.get('/server/available-addresses', async (req, res, next) => {
+    const list = await controller.communicate({ function: "list" });
+
     res.json({
-        availableAddresses: [
-            "GPIB0::26::INSTR",
-            "GPIB0::27::INSTR",
-            "GPIB0::28::INSTR",
-        ]
+        availableAddresses: list
     });
 });
 
@@ -22,10 +29,18 @@ const experiments = new Experiments();
 
 router.post('/server/new-experiment', (req, res) => {
     const experimentId = getRandomId(MIN_EXPERIMENT_ID_LENGTH, experiments.getExperimentIdList());
-    experiments.addExperiment(experimentId, new Experiment(experimentId, req.body));
+    experiments.addExperiment(experimentId, new Experiment(experimentId, req.body, controller));
     res.json({
         id: experimentId
     });
+});
+
+router.get('/server/halt-experiment', (req, res) => {
+    const id = req.query.id as string;
+    // tslint:disable-next-line:no-console
+    console.log(`halt-experiment: ${id}`);
+    experiments.halt(id);
+    res.send("End.");
 });
 
 router.get('/server/available-experiments', (req, res) => {
@@ -137,12 +152,35 @@ router.get('/server/events', async (req, res) => {
     res.end();
 });
 
+router.get('/server/open', async (req, res, next) => {
+    const { name, address }: { name: string, address: string }
+        = req.query as { name: string, address: string };
+
+    res.json(await controller.open(name, address));
+});
+
+router.get('/server/open-model', async (req, res, next) => {
+    const { name, address, model }: { name: string, address: string, model: string }
+        = req.query as { name: string, address: string, model: string };
+
+    res.json(await controller.openModel(name, address, model));
+});
+
 router.get('/server/query', async (req, res, next) => {
     const { name, command }: { name: string, command: string }
         = req.query as { name: string, command: string };
 
-    const url = process.env.CONTROLLER_ADDRESS;
-    const params = { name, command, function: "query" };
-    const response = await axios.get(url, { params });
-    res.send(response.data);
+    res.json(await controller.query(name, command));
+});
+
+router.get('/server/query-model', async (req, res, next) => {
+    const { name, model, ...query }: { name: string, model: string, [key: string]: string }
+        = req.query as { name: string, model: string, [key: string]: string };
+
+    res.json(await controller.queryModel(name, model, query));
+});
+
+router.get('/server/communicate', async (req, res, next) => {
+    const query = req.query as { [key: string]: string };
+    res.json(await controller.communicate(query));
 });

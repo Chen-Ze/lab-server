@@ -38,28 +38,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commanderExperimenter = void 0;
 var experiment_executer_1 = require("./experiment-executer");
-var commanderExperimenter = function (recipe, subsequence, onData, onHalt) { return __awaiter(void 0, void 0, void 0, function () {
-    var haltFlag, unsubscribe, _i, subsequence_1, subrecipe;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+var commanderExperimenter = function (recipe, subsequence, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
+    var haltFlag, unsubscribe, _i, _a, instrument, _b, _c, subsequence_1, subrecipe;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
                 haltFlag = false;
                 unsubscribe = onHalt.subscribe(function () { return haltFlag = true; });
-                _i = 0, subsequence_1 = subsequence;
-                _a.label = 1;
+                _i = 0, _a = recipe.instruments;
+                _d.label = 1;
             case 1:
-                if (!(_i < subsequence_1.length)) return [3 /*break*/, 4];
-                subrecipe = subsequence_1[_i];
-                if (haltFlag)
-                    return [3 /*break*/, 4];
-                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt)];
-            case 2:
-                _a.sent();
-                _a.label = 3;
+                if (!(_i < _a.length)) return [3 /*break*/, 10];
+                instrument = _a[_i];
+                _b = instrument.model;
+                switch (_b) {
+                    case "Keithley 2400": return [3 /*break*/, 2];
+                    case "Keithley 2600": return [3 /*break*/, 4];
+                    case "GPIB": return [3 /*break*/, 6];
+                }
+                return [3 /*break*/, 8];
+            case 2: return [4 /*yield*/, controller.openModel(instrument.name, instrument.address, "Model2400")];
             case 3:
+                _d.sent();
+                return [3 /*break*/, 9];
+            case 4: return [4 /*yield*/, controller.openModel(instrument.name, instrument.address, "Model2600")];
+            case 5:
+                _d.sent();
+                return [3 /*break*/, 9];
+            case 6: return [4 /*yield*/, controller.open(instrument.name, instrument.address)];
+            case 7:
+                _d.sent();
+                return [3 /*break*/, 9];
+            case 8: throw Error("Unsupported instrument model type: " + instrument.model + ".");
+            case 9:
                 _i++;
                 return [3 /*break*/, 1];
-            case 4:
+            case 10:
+                _c = 0, subsequence_1 = subsequence;
+                _d.label = 11;
+            case 11:
+                if (!(_c < subsequence_1.length)) return [3 /*break*/, 14];
+                subrecipe = subsequence_1[_c];
+                if (haltFlag)
+                    return [3 /*break*/, 14];
+                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller)];
+            case 12:
+                _d.sent();
+                _d.label = 13;
+            case 13:
+                _c++;
+                return [3 /*break*/, 11];
+            case 14:
                 unsubscribe();
                 return [2 /*return*/];
         }
