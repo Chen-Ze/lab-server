@@ -7,7 +7,7 @@
  * @param inclueStart If the starting point should be included.
  * @returns The array.
  */
-export const linspace = (start: number, stop: number, step: number, includeStop = true, includeStart = true) => {
+export const linspace = (start: number, stop: number, step: number, includeStop = true, includeStart = true, eps?: number) => {
     if ((stop - start) * step <= 0) step = -step; // correct the sign of step
     const steps = Math.ceil((stop - start) / step);
     const arrayWithoutStop = includeStart ? (
@@ -15,8 +15,19 @@ export const linspace = (start: number, stop: number, step: number, includeStop 
     ) : (
         Array.from({length: steps - 1}, (_, i) => i + 1).map(i => start + step * i)
     );
-    return includeStop ? [...arrayWithoutStop, stop] : arrayWithoutStop;
+    if (!eps || !arrayWithoutStop.length)
+        return includeStop ? [...arrayWithoutStop, stop] : arrayWithoutStop;
+    else {
+        if (Math.abs(arrayWithoutStop[arrayWithoutStop.length - 1] - stop) < eps) {
+            return arrayWithoutStop;
+        } else {
+            return [...arrayWithoutStop, stop];
+        }
+    }
 }
+
+
+export const LINSPACE_EPS_SCALE = 1e-6;
 
 
 export const arrayDirectProduct = <S, T>(array1: S[], array2: T[]): [S[], T[]] => {

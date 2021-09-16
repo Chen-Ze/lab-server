@@ -1,5 +1,5 @@
 import { SMUMode, SMURecipe } from "material-science-experiment-recipes/lib/keithley-simple/smu-recipe";
-import { linspace } from "./util";
+import { linspace, LINSPACE_EPS_SCALE } from "./util";
 
 export const smuRecipeToArray = (smuRecipe: SMURecipe): (number | undefined)[][] => {
     switch (smuRecipe.smuMode) {
@@ -15,6 +15,8 @@ export const smuRecipeToArray = (smuRecipe: SMURecipe): (number | undefined)[][]
             const intervalStarts = intervalPoints.slice(0, -1);
             const intervalEnds   = intervalPoints.slice(1);
             const intervals      = intervalStarts.map((start, i) => ({ start, end: intervalEnds[i] }));
-            return [[Number(smuRecipe.start)], ...intervals.map(({ start, end }) => linspace(start, end, Number(smuRecipe.step), true, false))];
+            return [[Number(smuRecipe.start)], ...intervals.map(
+                ({ start, end }) => linspace(start, end, Number(smuRecipe.step), true, false, Number(smuRecipe.step) * LINSPACE_EPS_SCALE)
+            )];
     }
 };
