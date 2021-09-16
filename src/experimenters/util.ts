@@ -1,14 +1,21 @@
 /**
- * If any of the parameter is NaN, the generated array will be [stop].
+ * If any of the parameter is NaN, the generated array will be [] or [stop].
  * @param start The starting value.
  * @param stop The stop value, always included.
  * @param step The step, the sign of which will be inverted if it does not match the sign of (stop - step).
+ * @param includeStop If the stopping point should be included.
+ * @param inclueStart If the starting point should be included.
  * @returns The array.
  */
-export const linspace = (start: number, stop: number, step: number) => {
+export const linspace = (start: number, stop: number, step: number, includeStop = true, includeStart = true) => {
     if ((stop - start) * step <= 0) step = -step; // correct the sign of step
     const steps = Math.ceil((stop - start) / step);
-    return [...Array.from({length: steps}, (_, i) => i).map(i => start + step * i), stop];
+    const arrayWithoutStop = includeStart ? (
+        Array.from({length: steps}, (_, i) => i).map(i => start + step * i)
+    ) : (
+        Array.from({length: steps - 1}, (_, i) => i + 1).map(i => start + step * i)
+    );
+    return includeStop ? [...arrayWithoutStop, stop] : arrayWithoutStop;
 }
 
 

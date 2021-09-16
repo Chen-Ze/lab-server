@@ -15,6 +15,6 @@ export const smuRecipeToArray = (smuRecipe: SMURecipe): (number | undefined)[][]
             const intervalStarts = intervalPoints.slice(0, -1);
             const intervalEnds   = intervalPoints.slice(1);
             const intervals      = intervalStarts.map((start, i) => ({ start, end: intervalEnds[i] }));
-            return [[Number(smuRecipe.start)], ...intervals.map(({ start, end }) => linspace(start, end, Number(smuRecipe.step)))];
+            return [[Number(smuRecipe.start)], ...intervals.map(({ start, end }) => linspace(start, end, Number(smuRecipe.step), true, false))];
     }
 };
