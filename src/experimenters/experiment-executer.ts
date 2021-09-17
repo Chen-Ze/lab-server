@@ -10,6 +10,8 @@ import { isKeithley2636SimpleRecipe } from "material-science-experiment-recipes/
 import { keithley2600SimpleExperimenter } from "./keithley-2600-simple-experimenter";
 import { keithley2400SimpleExperimenter } from "./keithley-2400-simple-experimenter";
 import { isKeithley2400SimpleRecipe } from "material-science-experiment-recipes/lib/keithley-2400-simple-recipe";
+import { isPythonRecipe } from "material-science-experiment-recipes/lib/python-simple-recipe";
+import { pythonExperimenter } from "./python-experimenter";
 
 export const experimentExecuter = async (recipe: WrappedRecipe, onData: (data: RawDataRow) => void, onHalt: ISignal, controller: Controller) => {
     if (isRandomNumberRecipe(recipe.recipe)) {
@@ -26,6 +28,10 @@ export const experimentExecuter = async (recipe: WrappedRecipe, onData: (data: R
     }
     if (isKeithley2400SimpleRecipe(recipe.recipe)) {
         await keithley2400SimpleExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller);
+        return;
+    }
+    if (isPythonRecipe(recipe.recipe)) {
+        await pythonExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller);
         return;
     }
 }

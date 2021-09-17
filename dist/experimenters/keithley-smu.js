@@ -28,7 +28,7 @@ var smuRecipeToArray = function (smuRecipe) {
             var intervals = intervalStarts.map(function (start, i) { return ({ start: start, end: intervalEnds_1[i] }); });
             return __spreadArray([[Number(smuRecipe.start)]], intervals.map(function (_a) {
                 var start = _a.start, end = _a.end;
-                return (0, util_1.linspace)(start, end, Number(smuRecipe.step));
+                return (0, util_1.linspace)(start, end, Number(smuRecipe.step), true, false, Number(smuRecipe.step) * util_1.LINSPACE_EPS_SCALE);
             }), true);
     }
 };

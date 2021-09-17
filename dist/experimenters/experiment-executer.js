@@ -45,6 +45,8 @@ var keithley_2636_simple_recipe_1 = require("material-science-experiment-recipes
 var keithley_2600_simple_experimenter_1 = require("./keithley-2600-simple-experimenter");
 var keithley_2400_simple_experimenter_1 = require("./keithley-2400-simple-experimenter");
 var keithley_2400_simple_recipe_1 = require("material-science-experiment-recipes/lib/keithley-2400-simple-recipe");
+var python_simple_recipe_1 = require("material-science-experiment-recipes/lib/python-simple-recipe");
+var python_experimenter_1 = require("./python-experimenter");
 var experimentExecuter = function (recipe, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -72,7 +74,13 @@ var experimentExecuter = function (recipe, onData, onHalt, controller) { return 
             case 7:
                 _a.sent();
                 return [2 /*return*/];
-            case 8: return [2 /*return*/];
+            case 8:
+                if (!(0, python_simple_recipe_1.isPythonRecipe)(recipe.recipe)) return [3 /*break*/, 10];
+                return [4 /*yield*/, (0, python_experimenter_1.pythonExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+            case 9:
+                _a.sent();
+                return [2 /*return*/];
+            case 10: return [2 /*return*/];
         }
     });
 }); };
