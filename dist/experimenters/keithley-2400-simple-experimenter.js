@@ -41,7 +41,7 @@ var smu_recipe_1 = require("material-science-experiment-recipes/lib/keithley-sim
 var experiment_executer_1 = require("./experiment-executer");
 var keithley_smu_1 = require("./keithley-smu");
 var util_1 = require("./util");
-var keithley2400SimpleExperimenter = function (recipe, subsequence, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
+var keithley2400SimpleExperimenter = function (recipe, subsequence, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
     var haltFlag, unsubscribe, publicRows, smuArray, _i, smuArray_1, smuSubArray, _loop_1, _a, smuSubArray_1, smuValue, state_1, _b, subsequence_1, subrecipe;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -182,7 +182,7 @@ var keithley2400SimpleExperimenter = function (recipe, subsequence, onData, onHa
                 subrecipe = subsequence_1[_b];
                 if (haltFlag)
                     return [3 /*break*/, 16];
-                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller, events)];
             case 14:
                 _c.sent();
                 _c.label = 15;

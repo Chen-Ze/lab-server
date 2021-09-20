@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commanderExperimenter = void 0;
 var experiment_executer_1 = require("./experiment-executer");
-var commanderExperimenter = function (recipe, subsequence, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
+var commanderExperimenter = function (recipe, subsequence, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
     var haltFlag, unsubscribe, _i, _a, instrument, _b, _c, subsequence_1, subrecipe;
     return __generator(this, function (_d) {
         switch (_d.label) {
@@ -81,7 +81,7 @@ var commanderExperimenter = function (recipe, subsequence, onData, onHalt, contr
                 subrecipe = subsequence_1[_c];
                 if (haltFlag)
                     return [3 /*break*/, 14];
-                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(subrecipe, onData, onHalt, controller, events)];
             case 12:
                 _d.sent();
                 _d.label = 13;

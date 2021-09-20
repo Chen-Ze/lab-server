@@ -68,6 +68,9 @@ var Experiment = /** @class */ (function () {
         this._onStarted = new strongly_typed_events_1.SignalDispatcher();
         this._onTerminated = new strongly_typed_events_1.SignalDispatcher();
         this._onHalt = new strongly_typed_events_1.SignalDispatcher();
+        this._events = {
+            onResume: new strongly_typed_events_1.SignalDispatcher()
+        };
         this.id = id;
         this.status = ExperimentStatus.Created;
         this.data = [];
@@ -118,7 +121,7 @@ var Experiment = /** @class */ (function () {
                                     data: _this.data,
                                     status: _this.status
                                 });
-                            }, this.onHalt, this.controller)];
+                            }, this.onHalt, this.controller, this._events)];
                     case 1:
                         _a.sent();
                         return [4 /*yield*/, this.statusLock.acquireAsync()];
@@ -174,6 +177,9 @@ var Experiment = /** @class */ (function () {
     });
     Experiment.prototype.halt = function () {
         this._onHalt.dispatch();
+    };
+    Experiment.prototype.resume = function () {
+        this._events.onResume.dispatch();
     };
     Experiment.prototype.getStatus = function () {
         return this.status;

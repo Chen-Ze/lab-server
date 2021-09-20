@@ -44,4 +44,8 @@ export class Experiments {
     public halt(id: string) {
         this.experiments[id]?.halt();
     }
+
+    public resume(id: string) {
+        this.experiments[id]?.resume();
+    }
 }

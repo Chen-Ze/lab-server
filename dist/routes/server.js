@@ -57,8 +57,10 @@ var experiment_1 = require("./experiment");
 var experiments_1 = require("./experiments");
 var controller_1 = require("../controller/controller");
 var dotenv_1 = __importDefault(require("dotenv"));
+var fs_1 = __importDefault(require("fs"));
 dotenv_1.default.config();
 var DEFAULT_CONTROLLER_URL = process.env.CONTROLLER_ADDRESS;
+var PYTHON_SCRIPT_LOCATION = process.env.PYTHON_SCRIPT_LOCATION;
 var controller = new controller_1.Controller(DEFAULT_CONTROLLER_URL);
 exports.router = express_1.default.Router();
 exports.router.get('/server/available-addresses', function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
@@ -90,6 +92,13 @@ exports.router.get('/server/halt-experiment', function (req, res) {
     console.log("halt-experiment: " + id);
     experiments.halt(id);
     res.send("End.");
+});
+exports.router.get('/server/resume-experiment', function (req, res) {
+    var id = req.query.id;
+    // tslint:disable-next-line:no-console
+    console.log("resume-experiment: " + id);
+    experiments.resume(id);
+    res.send("Resume.");
 });
 exports.router.get('/server/available-experiments', function (req, res) {
     var headers = {
@@ -276,4 +285,9 @@ exports.router.get('/server/communicate', function (req, res, next) { return __a
         }
     });
 }); });
+exports.router.get('/server/python-scripts', function (req, res, next) {
+    fs_1.default.readdir(PYTHON_SCRIPT_LOCATION, function (err, files) {
+        res.json(files);
+    });
+});
 //# sourceMappingURL=server.js.map

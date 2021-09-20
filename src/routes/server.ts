@@ -5,11 +5,13 @@ import { Experiment } from './experiment';
 import { Experiments } from './experiments';
 import { Controller } from '../controller/controller';
 import dotenv from 'dotenv';
+import fs from "fs";
 
 
 dotenv.config();
 
 const DEFAULT_CONTROLLER_URL = process.env.CONTROLLER_ADDRESS;
+const PYTHON_SCRIPT_LOCATION = process.env.PYTHON_SCRIPT_LOCATION;
 
 const controller = new Controller(DEFAULT_CONTROLLER_URL);
 
@@ -41,6 +43,14 @@ router.get('/server/halt-experiment', (req, res) => {
     console.log(`halt-experiment: ${id}`);
     experiments.halt(id);
     res.send("End.");
+});
+
+router.get('/server/resume-experiment', (req, res) => {
+    const id = req.query.id as string;
+    // tslint:disable-next-line:no-console
+    console.log(`resume-experiment: ${id}`);
+    experiments.resume(id);
+    res.send("Resume.");
 });
 
 router.get('/server/available-experiments', (req, res) => {
@@ -183,4 +193,10 @@ router.get('/server/query-model', async (req, res, next) => {
 router.get('/server/communicate', async (req, res, next) => {
     const query = req.query as { [key: string]: string };
     res.json(await controller.communicate(query));
+});
+
+router.get('/server/python-scripts', (req, res, next) => {
+    fs.readdir(PYTHON_SCRIPT_LOCATION, (err, files) => {
+        res.json(files);
+    });
 });

@@ -36,39 +36,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pythonExperimenter = void 0;
-var child_process_1 = require("child_process");
-var pythonExperimenter = function (recipe, subsequence, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
-    var haltFlag, unsubscribe, publicRows;
+exports.pauseExperimenter = void 0;
+var pauseExperimenter = function (recipe, subsequence, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
+    var unsubscribeHalt, unsubscribeResume;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                haltFlag = false;
-                unsubscribe = onHalt.subscribe(function () { return haltFlag = true; });
-                publicRows = [];
-                return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        var pythonProcess = (0, child_process_1.spawn)(recipe.command.split(" ")[0], recipe.command.split(" ").slice(1));
-                        pythonProcess.stdout.on('data', function (data) {
-                            // tslint:disable-next-line:no-console
-                            console.log("Python stdout: " + data);
-                        });
-                        pythonProcess.stderr.on('data', function (data) {
-                            // tslint:disable-next-line:no-console
-                            console.error("Python stderr: " + data);
-                        });
-                        pythonProcess.on('close', function (code) {
-                            // tslint:disable-next-line:no-console
-                            console.log("Python child process exited with code " + code);
-                            resolve(code);
-                        });
-                    })];
+            case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
+                    unsubscribeHalt = onHalt.subscribe(function () { return resolve(0); });
+                    unsubscribeResume = events.onResume.subscribe(function () { return resolve(0); });
+                })];
             case 1:
                 _a.sent();
-                publicRows.forEach(function (row) { return onData(row); });
-                unsubscribe();
+                if (unsubscribeHalt)
+                    unsubscribeHalt();
+                if (unsubscribeResume)
+                    unsubscribeResume();
                 return [2 /*return*/];
         }
     });
 }); };
-exports.pythonExperimenter = pythonExperimenter;
-//# sourceMappingURL=python-experimenter.js.map
+exports.pauseExperimenter = pauseExperimenter;
+//# sourceMappingURL=pause-experimenter.js.map

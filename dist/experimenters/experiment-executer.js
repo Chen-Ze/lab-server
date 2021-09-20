@@ -47,40 +47,48 @@ var keithley_2400_simple_experimenter_1 = require("./keithley-2400-simple-experi
 var keithley_2400_simple_recipe_1 = require("material-science-experiment-recipes/lib/keithley-2400-simple-recipe");
 var python_simple_recipe_1 = require("material-science-experiment-recipes/lib/python-simple-recipe");
 var python_experimenter_1 = require("./python-experimenter");
-var experimentExecuter = function (recipe, onData, onHalt, controller) { return __awaiter(void 0, void 0, void 0, function () {
+var pause_recipe_1 = require("material-science-experiment-recipes/lib/pause-recipe");
+var pause_experimenter_1 = require("./pause-experimenter");
+var experimentExecuter = function (recipe, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 if (!(0, random_number_recipe_1.isRandomNumberRecipe)(recipe.recipe)) return [3 /*break*/, 2];
-                return [4 /*yield*/, (0, random_number_experimenter_1.randomNumberExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, random_number_experimenter_1.randomNumberExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
             case 1:
                 _a.sent();
                 return [2 /*return*/];
             case 2:
                 if (!(0, commander_recipe_1.isCommanderRecipe)(recipe.recipe)) return [3 /*break*/, 4];
-                return [4 /*yield*/, (0, commander_experimenter_1.commanderExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, commander_experimenter_1.commanderExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
             case 3:
                 _a.sent();
                 return [2 /*return*/];
             case 4:
                 if (!(0, keithley_2636_simple_recipe_1.isKeithley2636SimpleRecipe)(recipe.recipe)) return [3 /*break*/, 6];
-                return [4 /*yield*/, (0, keithley_2600_simple_experimenter_1.keithley2600SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, keithley_2600_simple_experimenter_1.keithley2600SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
             case 5:
                 _a.sent();
                 return [2 /*return*/];
             case 6:
                 if (!(0, keithley_2400_simple_recipe_1.isKeithley2400SimpleRecipe)(recipe.recipe)) return [3 /*break*/, 8];
-                return [4 /*yield*/, (0, keithley_2400_simple_experimenter_1.keithley2400SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, keithley_2400_simple_experimenter_1.keithley2400SimpleExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
             case 7:
                 _a.sent();
                 return [2 /*return*/];
             case 8:
                 if (!(0, python_simple_recipe_1.isPythonRecipe)(recipe.recipe)) return [3 /*break*/, 10];
-                return [4 /*yield*/, (0, python_experimenter_1.pythonExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller)];
+                return [4 /*yield*/, (0, python_experimenter_1.pythonExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
             case 9:
                 _a.sent();
                 return [2 /*return*/];
-            case 10: return [2 /*return*/];
+            case 10:
+                if (!(0, pause_recipe_1.isPauseRecipe)(recipe.recipe)) return [3 /*break*/, 12];
+                return [4 /*yield*/, (0, pause_experimenter_1.pauseExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events)];
+            case 11:
+                _a.sent();
+                return [2 /*return*/];
+            case 12: return [2 /*return*/];
         }
     });
 }); };

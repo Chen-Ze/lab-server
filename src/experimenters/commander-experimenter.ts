@@ -1,11 +1,18 @@
 import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
 import { CommanderRecipe } from "material-science-experiment-recipes/lib/commander-recipe";
-import { RawDataRow } from "../routes/experiment";
+import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
 import { ISignal } from "ste-signals";
 import { Controller } from "../controller/controller";
 
-export const commanderExperimenter = async (recipe: CommanderRecipe, subsequence: WrappedRecipe[], onData: (data: RawDataRow) => void, onHalt: ISignal, controller: Controller) => {
+export const commanderExperimenter = async (
+    recipe: CommanderRecipe,
+    subsequence: WrappedRecipe[],
+    onData: (data: RawDataRow) => void,
+    onHalt: ISignal,
+    controller: Controller,
+    events: ExperimentEvents
+) => {
     let haltFlag = false;
     const unsubscribe = onHalt.subscribe(() => haltFlag = true);
     for (const instrument of recipe.instruments) {
@@ -25,7 +32,7 @@ export const commanderExperimenter = async (recipe: CommanderRecipe, subsequence
     }
     for (const subrecipe of subsequence) {
         if (haltFlag) break;
-        await experimentExecuter(subrecipe, onData, onHalt, controller);
+        await experimentExecuter(subrecipe, onData, onHalt, controller, events);
     }
     unsubscribe();
 }

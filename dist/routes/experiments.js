@@ -41,6 +41,10 @@ var Experiments = /** @class */ (function () {
         var _a;
         (_a = this.experiments[id]) === null || _a === void 0 ? void 0 : _a.halt();
     };
+    Experiments.prototype.resume = function (id) {
+        var _a;
+        (_a = this.experiments[id]) === null || _a === void 0 ? void 0 : _a.resume();
+    };
     return Experiments;
 }());
 exports.Experiments = Experiments;
