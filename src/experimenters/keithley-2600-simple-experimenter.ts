@@ -5,7 +5,7 @@ import { Controller } from "../controller/controller";
 import { ISignal } from "ste-signals";
 import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
-import { smuRecipeToArray } from "./keithley-smu";
+import { measurementFlag, smuRecipeToArray } from "./keithley-smu";
 import { arrayDirectProduct, sleep, zipArray } from "./util";
 
 
@@ -89,6 +89,11 @@ export const keithley2600SimpleExperimenter = async (
         }
     }
 
+    const measureSMUAVoltage = measurementFlag(recipe, "SMU A Voltage");
+    const measureSMUACurrent = measurementFlag(recipe, "SMU A Current");
+    const measureSMUBVoltage = measurementFlag(recipe, "SMU B Voltage");
+    const measureSMUBCurrent = measurementFlag(recipe, "SMU B Current");
+
     for (const smuSubArray of smuArrayZipped) {
         if (haltFlag) break;
         for (const smuPair of smuSubArray) {
@@ -120,27 +125,35 @@ export const keithley2600SimpleExperimenter = async (
             await sleep(Number(recipe.wait));
 
             const measurement = {
-                "SMU A Voltage": Number((await controller.queryModel(recipe.name, "Model2600", {
-                    task: "measure-smua-voltage",
-                })).read),
-                "SMU A Current": Number((await controller.queryModel(recipe.name, "Model2600", {
-                    task: "measure-smua-current",
-                })).read),
-                "SMU B Voltage": Number((await controller.queryModel(recipe.name, "Model2600", {
-                    task: "measure-smub-voltage",
-                })).read),
-                "SMU B Current": Number((await controller.queryModel(recipe.name, "Model2600", {
-                    task: "measure-smub-current",
-                })).read),
+                "SMU A Voltage": measureSMUAVoltage ? (
+                    Number((await controller.queryModel(recipe.name, "Model2600", {
+                        task: "measure-smua-voltage",
+                    })).read)
+                ) : NaN,
+                "SMU A Current": measureSMUACurrent ? (
+                    Number((await controller.queryModel(recipe.name, "Model2600", {
+                        task: "measure-smua-current",
+                    })).read)
+                ) : NaN,
+                "SMU B Voltage": measureSMUBVoltage ? (
+                    Number((await controller.queryModel(recipe.name, "Model2600", {
+                        task: "measure-smub-voltage",
+                    })).read)
+                ) : NaN,
+                "SMU B Current": measureSMUBCurrent ? (
+                    Number((await controller.queryModel(recipe.name, "Model2600", {
+                        task: "measure-smub-current",
+                    })).read)
+                ) : NaN,
             };
 
-            if (recipe.privateExports.length) onData(Object.fromEntries(recipe.privateExports.map(({name, column}) => [
+            if (recipe.privateExports.length) onData(Object.fromEntries(recipe.privateExports.map(({ name, column }) => [
                 column, measurement[name as keyof typeof measurement]
             ])));
 
             const publicMeasurement = Object.fromEntries(Object.entries(measurement).map(([key, value]) => [key + "[]", value]));
 
-            if (recipe.publicExports.length) publicRows.push(Object.fromEntries(recipe.publicExports.map(({name, column}) => [
+            if (recipe.publicExports.length) publicRows.push(Object.fromEntries(recipe.publicExports.map(({ name, column }) => [
                 column, publicMeasurement[name]
             ])));
         }

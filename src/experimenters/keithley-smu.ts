@@ -1,3 +1,4 @@
+import { Recipe } from "material-science-experiment-recipes/lib/recipe";
 import { SMUMode, SMURecipe } from "material-science-experiment-recipes/lib/keithley-simple/smu-recipe";
 import { linspace, LINSPACE_EPS_SCALE } from "./util";
 
@@ -20,3 +21,16 @@ export const smuRecipeToArray = (smuRecipe: SMURecipe): (number | undefined)[][]
             )];
     }
 };
+
+export const measurementFlag = (recipe: Recipe,
+    privateName: string,
+    publicName?: string,
+) => {
+    if (!publicName) publicName = privateName + "[]";
+    return (
+        recipe.privateExports.map(entry => entry.name).includes(privateName) ||
+        recipe.publicExports.map(entry => entry.name).includes(publicName) ||
+        recipe.privateVariables.map(entry => entry.name).includes(privateName) ||
+        recipe.publicVariables.map(entry => entry.name).includes(publicName)
+    );
+}

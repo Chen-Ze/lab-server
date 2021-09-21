@@ -9,7 +9,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.smuRecipeToArray = void 0;
+exports.measurementFlag = exports.smuRecipeToArray = void 0;
 var smu_recipe_1 = require("material-science-experiment-recipes/lib/keithley-simple/smu-recipe");
 var util_1 = require("./util");
 var smuRecipeToArray = function (smuRecipe) {
@@ -33,4 +33,13 @@ var smuRecipeToArray = function (smuRecipe) {
     }
 };
 exports.smuRecipeToArray = smuRecipeToArray;
+var measurementFlag = function (recipe, privateName, publicName) {
+    if (!publicName)
+        publicName = privateName + "[]";
+    return (recipe.privateExports.map(function (entry) { return entry.name; }).includes(privateName) ||
+        recipe.publicExports.map(function (entry) { return entry.name; }).includes(publicName) ||
+        recipe.privateVariables.map(function (entry) { return entry.name; }).includes(privateName) ||
+        recipe.publicVariables.map(function (entry) { return entry.name; }).includes(publicName));
+};
+exports.measurementFlag = measurementFlag;
 //# sourceMappingURL=keithley-smu.js.map

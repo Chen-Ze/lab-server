@@ -5,7 +5,7 @@ import { Controller } from "../controller/controller";
 import { ISignal } from "ste-signals";
 import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
-import { smuRecipeToArray } from "./keithley-smu";
+import { measurementFlag, smuRecipeToArray } from "./keithley-smu";
 import { sleep } from "./util";
 
 
@@ -55,6 +55,9 @@ export const keithley2400SimpleExperimenter = async (
         }
     }
 
+    const measureVoltage = measurementFlag(recipe, "Voltage");
+    const measureCurrent = measurementFlag(recipe, "Current");
+
     for (const smuSubArray of smuArray) {
         if (haltFlag) break;
         for (const smuValue of smuSubArray) {
@@ -74,21 +77,25 @@ export const keithley2400SimpleExperimenter = async (
             await sleep(Number(recipe.wait));
 
             const measurement = {
-                "Voltage": Number((await controller.queryModel(recipe.name, "Model2400", {
-                    task: "measure-smu-voltage",
-                })).read),
-                "Current": Number((await controller.queryModel(recipe.name, "Model2400", {
-                    task: "measure-smu-current",
-                })).read),
+                "Voltage": measureVoltage ? (
+                    Number((await controller.queryModel(recipe.name, "Model2400", {
+                        task: "measure-smu-voltage",
+                    })).read)
+                ) : NaN,
+                "Current": measureCurrent ? (
+                    Number((await controller.queryModel(recipe.name, "Model2400", {
+                        task: "measure-smu-current",
+                    })).read)
+                ) : NaN,
             };
 
-            if (recipe.privateExports.length) onData(Object.fromEntries(recipe.privateExports.map(({name, column}) => [
+            if (recipe.privateExports.length) onData(Object.fromEntries(recipe.privateExports.map(({ name, column }) => [
                 column, measurement[name as keyof typeof measurement]
             ])));
 
             const publicMeasurement = Object.fromEntries(Object.entries(measurement).map(([key, value]) => [key + "[]", value]));
 
-            if (recipe.publicExports.length) publicRows.push(Object.fromEntries(recipe.publicExports.map(({name, column}) => [
+            if (recipe.publicExports.length) publicRows.push(Object.fromEntries(recipe.publicExports.map(({ name, column }) => [
                 column, publicMeasurement[name]
             ])));
         }

@@ -42,7 +42,7 @@ var experiment_executer_1 = require("./experiment-executer");
 var keithley_smu_1 = require("./keithley-smu");
 var util_1 = require("./util");
 var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
-    var haltFlag, unsubscribe, publicRows, smuAArray, smuBArray, _a, smuAArrayProducted, smuBArrayProducted, smuArrayZipped, _i, smuArrayZipped_1, smuSubArray, _loop_1, _b, smuSubArray_1, smuPair, state_1, _c, subsequence_1, subrecipe;
+    var haltFlag, unsubscribe, publicRows, smuAArray, smuBArray, _a, smuAArrayProducted, smuBArrayProducted, smuArrayZipped, measureSMUAVoltage, measureSMUACurrent, measureSMUBVoltage, measureSMUBCurrent, _i, smuArrayZipped_1, smuSubArray, _loop_1, _b, smuSubArray_1, smuPair, state_1, _c, subsequence_1, subrecipe;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
@@ -124,6 +124,10 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                 _d.sent();
                 _d.label = 13;
             case 13:
+                measureSMUAVoltage = (0, keithley_smu_1.measurementFlag)(recipe, "SMU A Voltage");
+                measureSMUACurrent = (0, keithley_smu_1.measurementFlag)(recipe, "SMU A Current");
+                measureSMUBVoltage = (0, keithley_smu_1.measurementFlag)(recipe, "SMU B Voltage");
+                measureSMUBCurrent = (0, keithley_smu_1.measurementFlag)(recipe, "SMU B Current");
                 _i = 0, smuArrayZipped_1 = smuArrayZipped;
                 _d.label = 14;
             case 14:
@@ -132,10 +136,10 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                 if (haltFlag)
                     return [3 /*break*/, 23];
                 _loop_1 = function (smuPair) {
-                    var measurement, _e, _f, _g, _h, _j, _k, _l, _m, publicMeasurement;
-                    var _o;
-                    return __generator(this, function (_p) {
-                        switch (_p.label) {
+                    var measurement, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, publicMeasurement;
+                    var _s;
+                    return __generator(this, function (_t) {
+                        switch (_t.label) {
                             case 0:
                                 if (haltFlag)
                                     return [2 /*return*/, "break"];
@@ -145,8 +149,8 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                                         value: String(smuPair[0])
                                     })];
                             case 1:
-                                _p.sent();
-                                _p.label = 2;
+                                _t.sent();
+                                _t.label = 2;
                             case 2:
                                 if (!(recipe.smuARecipe.smuMode === smu_recipe_1.SMUMode.FixedCurrent || recipe.smuARecipe.smuMode === smu_recipe_1.SMUMode.SweepCurrent)) return [3 /*break*/, 4];
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
@@ -154,8 +158,8 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                                         value: String(smuPair[0])
                                     })];
                             case 3:
-                                _p.sent();
-                                _p.label = 4;
+                                _t.sent();
+                                _t.label = 4;
                             case 4:
                                 if (!(recipe.smuBRecipe.smuMode === smu_recipe_1.SMUMode.FixedVoltage || recipe.smuBRecipe.smuMode === smu_recipe_1.SMUMode.SweepVoltage)) return [3 /*break*/, 6];
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
@@ -163,8 +167,8 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                                         value: String(smuPair[1])
                                     })];
                             case 5:
-                                _p.sent();
-                                _p.label = 6;
+                                _t.sent();
+                                _t.label = 6;
                             case 6:
                                 if (!(recipe.smuBRecipe.smuMode === smu_recipe_1.SMUMode.FixedCurrent || recipe.smuBRecipe.smuMode === smu_recipe_1.SMUMode.SweepCurrent)) return [3 /*break*/, 8];
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
@@ -172,41 +176,69 @@ var keithley2600SimpleExperimenter = function (recipe, subsequence, onData, onHa
                                         value: String(smuPair[1])
                                     })];
                             case 7:
-                                _p.sent();
-                                _p.label = 8;
+                                _t.sent();
+                                _t.label = 8;
                             case 8: return [4 /*yield*/, (0, util_1.sleep)(Number(recipe.wait))];
                             case 9:
-                                _p.sent();
-                                _o = {};
+                                _t.sent();
+                                _s = {};
                                 _e = "SMU A Voltage";
-                                _f = Number;
+                                if (!measureSMUAVoltage) return [3 /*break*/, 11];
+                                _g = Number;
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
                                         task: "measure-smua-voltage",
                                     })];
                             case 10:
-                                _o[_e] = _f.apply(void 0, [(_p.sent()).read]);
-                                _g = "SMU A Current";
-                                _h = Number;
+                                _f = (_g.apply(void 0, [(_t.sent()).read]));
+                                return [3 /*break*/, 12];
+                            case 11:
+                                _f = NaN;
+                                _t.label = 12;
+                            case 12:
+                                _s[_e] = _f;
+                                _h = "SMU A Current";
+                                if (!measureSMUACurrent) return [3 /*break*/, 14];
+                                _k = Number;
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
                                         task: "measure-smua-current",
                                     })];
-                            case 11:
-                                _o[_g] = _h.apply(void 0, [(_p.sent()).read]);
-                                _j = "SMU B Voltage";
-                                _k = Number;
+                            case 13:
+                                _j = (_k.apply(void 0, [(_t.sent()).read]));
+                                return [3 /*break*/, 15];
+                            case 14:
+                                _j = NaN;
+                                _t.label = 15;
+                            case 15:
+                                _s[_h] = _j;
+                                _l = "SMU B Voltage";
+                                if (!measureSMUBVoltage) return [3 /*break*/, 17];
+                                _o = Number;
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
                                         task: "measure-smub-voltage",
                                     })];
-                            case 12:
-                                _o[_j] = _k.apply(void 0, [(_p.sent()).read]);
-                                _l = "SMU B Current";
-                                _m = Number;
+                            case 16:
+                                _m = (_o.apply(void 0, [(_t.sent()).read]));
+                                return [3 /*break*/, 18];
+                            case 17:
+                                _m = NaN;
+                                _t.label = 18;
+                            case 18:
+                                _s[_l] = _m;
+                                _p = "SMU B Current";
+                                if (!measureSMUBCurrent) return [3 /*break*/, 20];
+                                _r = Number;
                                 return [4 /*yield*/, controller.queryModel(recipe.name, "Model2600", {
                                         task: "measure-smub-current",
                                     })];
-                            case 13:
-                                measurement = (_o[_l] = _m.apply(void 0, [(_p.sent()).read]),
-                                    _o);
+                            case 19:
+                                _q = (_r.apply(void 0, [(_t.sent()).read]));
+                                return [3 /*break*/, 21];
+                            case 20:
+                                _q = NaN;
+                                _t.label = 21;
+                            case 21:
+                                measurement = (_s[_p] = _q,
+                                    _s);
                                 if (recipe.privateExports.length)
                                     onData(Object.fromEntries(recipe.privateExports.map(function (_a) {
                                         var name = _a.name, column = _a.column;
