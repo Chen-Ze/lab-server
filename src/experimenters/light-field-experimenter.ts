@@ -18,6 +18,8 @@ export const lightFieldExperimenter = async (
     events: ExperimentEvents,
     id: string
 ) => {
+    const publicRows: RawDataRow[] = [];
+
     switch (recipe.task) {
         case LightFieldTask.ActivateWindow:
             await controller.queryModel("", "LightField", {
@@ -28,11 +30,24 @@ export const lightFieldExperimenter = async (
             if (!spectrumIndex[id]) {
                 spectrumIndex[id] = 0;
             }
-            await controller.queryModel("", "LightField", {
+            const response = await controller.queryModel("", "LightField", {
                 task: "save-spectrum",
                 dir: recipe.payload.dir,
                 filename: `${spectrumIndex[id]++}`
             });
+            const spectrum: number[] = response.spectrum;
+            const wavelengths: number[] = response.wavelengths;
+            const zippedData = spectrum.map((value, i) => ({
+                "Spectrum[]": value,
+                "Wavelength[]": wavelengths[i]
+            }));
+            zippedData.forEach((row) => {
+                if (recipe.publicExports.length) publicRows.push(Object.fromEntries(recipe.publicExports.map(({ name, column }) => [
+                    column, row[name as keyof typeof row]
+                ])));
+            });
             break;
     }
+
+    publicRows.forEach(row => onData(row));
 }

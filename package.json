@@ -19,7 +19,7 @@
         "compression": "^1.7.4",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
-        "material-science-experiment-recipes": "^1.0.24",
+        "material-science-experiment-recipes": "^1.0.25",
         "monaco-editor": "^0.27.0",
         "morgan": "^1.10.0",
         "random-words": "^1.1.1",
