@@ -32,8 +32,8 @@ export const lightFieldExperimenter = async (
             }
             const response = await controller.queryModel("LIGHT_FIElD", "LightField", {
                 task: "save-spectrum",
-                dir: recipe.payload.dir,
-                filename: `${recipe.payload.prefix}${spectrumIndex[id]++}`
+                dir: recipe.payload.dir || __dirname,
+                filename: `${recipe.payload.prefix || ''}${spectrumIndex[id]++}`
             });
             const spectrum: number[] = response.spectrum;
             const wavelengths: number[] = response.wavelengths;
