@@ -14,6 +14,8 @@ import { isPythonRecipe } from "material-science-experiment-recipes/lib/python-s
 import { pythonExperimenter } from "./python-experimenter";
 import { isPauseRecipe } from "material-science-experiment-recipes/lib/pause-recipe";
 import { pauseExperimenter } from "./pause-experimenter";
+import { isLightFieldRecipe } from "material-science-experiment-recipes/lib/lightfield-recipe";
+import { lightFieldExperimenter } from "./light-field-experimenter";
 
 export const experimentExecuter = async (
     recipe: WrappedRecipe,
@@ -44,6 +46,10 @@ export const experimentExecuter = async (
     }
     if (isPauseRecipe(recipe.recipe)) {
         await pauseExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
+        return;
+    }
+    if (isLightFieldRecipe(recipe.recipe)) {
+        await lightFieldExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events, String(recipe.id));
         return;
     }
 }

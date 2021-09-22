@@ -49,6 +49,8 @@ var python_simple_recipe_1 = require("material-science-experiment-recipes/lib/py
 var python_experimenter_1 = require("./python-experimenter");
 var pause_recipe_1 = require("material-science-experiment-recipes/lib/pause-recipe");
 var pause_experimenter_1 = require("./pause-experimenter");
+var lightfield_recipe_1 = require("material-science-experiment-recipes/lib/lightfield-recipe");
+var light_field_experimenter_1 = require("./light-field-experimenter");
 var experimentExecuter = function (recipe, onData, onHalt, controller, events) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -88,7 +90,13 @@ var experimentExecuter = function (recipe, onData, onHalt, controller, events) {
             case 11:
                 _a.sent();
                 return [2 /*return*/];
-            case 12: return [2 /*return*/];
+            case 12:
+                if (!(0, lightfield_recipe_1.isLightFieldRecipe)(recipe.recipe)) return [3 /*break*/, 14];
+                return [4 /*yield*/, (0, light_field_experimenter_1.lightFieldExperimenter)(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events, String(recipe.id))];
+            case 13:
+                _a.sent();
+                return [2 /*return*/];
+            case 14: return [2 /*return*/];
         }
     });
 }); };
