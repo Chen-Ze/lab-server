@@ -22,7 +22,7 @@ export const lightFieldExperimenter = async (
 
     switch (recipe.task) {
         case LightFieldTask.ActivateWindow:
-            await controller.queryModel("", "LightField", {
+            await controller.queryModel("LIGHT_FIElD", "LightField", {
                 task: "activate",
             });
             break;
@@ -30,10 +30,10 @@ export const lightFieldExperimenter = async (
             if (!spectrumIndex[id]) {
                 spectrumIndex[id] = 0;
             }
-            const response = await controller.queryModel("", "LightField", {
+            const response = await controller.queryModel("LIGHT_FIElD", "LightField", {
                 task: "save-spectrum",
                 dir: recipe.payload.dir,
-                filename: `${spectrumIndex[id]++}`
+                filename: `${recipe.payload.prefix}${spectrumIndex[id]++}`
             });
             const spectrum: number[] = response.spectrum;
             const wavelengths: number[] = response.wavelengths;
