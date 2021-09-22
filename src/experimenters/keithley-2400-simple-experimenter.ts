@@ -12,7 +12,7 @@ import { sleep } from "./util";
 export const keithley2400SimpleExperimenter = async (
     recipe: Keithley2400SimpleRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

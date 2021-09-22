@@ -9,7 +9,7 @@ import { spawn } from "child_process";
 export const pythonExperimenter = async (
     recipe: PythonSimpleRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

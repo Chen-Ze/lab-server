@@ -7,7 +7,7 @@ import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 export const pauseExperimenter = async (
     recipe: PauseRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

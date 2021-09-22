@@ -12,7 +12,7 @@ const spectrumIndex: {
 export const lightFieldExperimenter = async (
     recipe: LightFieldRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents,
@@ -49,5 +49,5 @@ export const lightFieldExperimenter = async (
             break;
     }
 
-    publicRows.forEach(row => onData(row));
+    onData(publicRows);
 }

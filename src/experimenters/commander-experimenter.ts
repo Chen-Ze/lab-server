@@ -8,7 +8,7 @@ import { Controller } from "../controller/controller";
 export const commanderExperimenter = async (
     recipe: CommanderRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

@@ -81,8 +81,9 @@ export class Experiment {
     private async execute() {
         this._onStarted.dispatch();
 
-        await experimentExecuter(this.recipe, (row) => {
-            this.data.push({ id: uuidv4(), ...row });
+        await experimentExecuter(this.recipe, (rawRows) => {
+            const rows = Array.isArray(rawRows) ? rawRows : [rawRows];
+            rows.forEach(row => this.data.push({ id: uuidv4(), ...row }));
             this._onDataJot.dispatch({
                 data: this.data,
                 status: this.status

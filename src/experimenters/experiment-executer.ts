@@ -19,7 +19,7 @@ import { lightFieldExperimenter } from "./light-field-experimenter";
 
 export const experimentExecuter = async (
     recipe: WrappedRecipe,
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

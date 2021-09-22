@@ -40,17 +40,18 @@ exports.lightFieldExperimenter = void 0;
 var lightfield_recipe_1 = require("material-science-experiment-recipes/lib/lightfield-recipe");
 var spectrumIndex = {};
 var lightFieldExperimenter = function (recipe, subsequence, onData, onHalt, controller, events, id) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a;
+    var publicRows, _a, response, spectrum, wavelengths_1, zippedData;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
+                publicRows = [];
                 _a = recipe.task;
                 switch (_a) {
                     case lightfield_recipe_1.LightFieldTask.ActivateWindow: return [3 /*break*/, 1];
                     case lightfield_recipe_1.LightFieldTask.SaveSpectrum: return [3 /*break*/, 3];
                 }
                 return [3 /*break*/, 5];
-            case 1: return [4 /*yield*/, controller.queryModel("", "LightField", {
+            case 1: return [4 /*yield*/, controller.queryModel("LIGHT_FIElD", "LightField", {
                     task: "activate",
                 })];
             case 2:
@@ -60,15 +61,32 @@ var lightFieldExperimenter = function (recipe, subsequence, onData, onHalt, cont
                 if (!spectrumIndex[id]) {
                     spectrumIndex[id] = 0;
                 }
-                return [4 /*yield*/, controller.queryModel("", "LightField", {
+                return [4 /*yield*/, controller.queryModel("LIGHT_FIElD", "LightField", {
                         task: "save-spectrum",
-                        dir: recipe.payload.dir,
-                        filename: "" + spectrumIndex[id]++
+                        dir: recipe.payload.directory || __dirname,
+                        filename: "" + (recipe.payload.prefix || '') + spectrumIndex[id]++
                     })];
             case 4:
-                _b.sent();
+                response = _b.sent();
+                spectrum = response.spectrum;
+                wavelengths_1 = response.wavelengths;
+                zippedData = spectrum.map(function (value, i) { return ({
+                    "Spectrum[]": value,
+                    "Wavelength[]": wavelengths_1[i]
+                }); });
+                zippedData.forEach(function (row) {
+                    if (recipe.publicExports.length)
+                        publicRows.push(Object.fromEntries(recipe.publicExports.map(function (_a) {
+                            var name = _a.name, column = _a.column;
+                            return [
+                                column, row[name]
+                            ];
+                        })));
+                });
                 return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+            case 5:
+                onData(publicRows);
+                return [2 /*return*/];
         }
     });
 }); };

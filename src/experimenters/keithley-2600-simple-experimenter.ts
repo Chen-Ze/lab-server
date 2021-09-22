@@ -12,7 +12,7 @@ import { arrayDirectProduct, sleep, zipArray } from "./util";
 export const keithley2600SimpleExperimenter = async (
     recipe: Keithley2636SimpleRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

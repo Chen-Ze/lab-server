@@ -13,7 +13,7 @@ const getRandomArbitrary = (min: number, max: number) => {
 export const randomNumberExperimenter = async (
     recipe: RandomNumberRecipe,
     subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow) => void,
+    onData: (data: RawDataRow | RawDataRow[]) => void,
     onHalt: ISignal,
     controller: Controller,
     events: ExperimentEvents

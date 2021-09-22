@@ -115,8 +115,9 @@ var Experiment = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this._onStarted.dispatch();
-                        return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(this.recipe, function (row) {
-                                _this.data.push(__assign({ id: (0, uuid_1.v4)() }, row));
+                        return [4 /*yield*/, (0, experiment_executer_1.experimentExecuter)(this.recipe, function (rawRows) {
+                                var rows = Array.isArray(rawRows) ? rawRows : [rawRows];
+                                rows.forEach(function (row) { return _this.data.push(__assign({ id: (0, uuid_1.v4)() }, row)); });
                                 _this._onDataJot.dispatch({
                                     data: _this.data,
                                     status: _this.status
