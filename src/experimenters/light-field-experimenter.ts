@@ -3,7 +3,6 @@ import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
 import { Controller } from "../controller/controller";
 import { ISignal } from "ste-signals";
 import { ExperimentEvents, RawDataRow } from "../routes/experiment";
-import { spawn } from "child_process";
 
 
 const spectrumIndex: {
