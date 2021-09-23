@@ -110,7 +110,7 @@ export const keithley2400SimpleExperimenter = async (
         // don't turn off the smu if experiment is halted by the user
         // otherwise the voltage may jump
         if (recipe.smuRecipe.turnOffAfterDone) {
-            await controller.queryModel(recipe.name, "Model2600", {
+            await controller.queryModel(recipe.name, "Model2400", {
                 task: "set-smu-off",
                 value: recipe.integrationTime
             });
