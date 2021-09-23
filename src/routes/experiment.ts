@@ -15,10 +15,6 @@ export type RawDataRow = {
     [key: string]: any
 }
 
-export interface ExperimentEvents {
-    onResume: SignalDispatcher;
-}
-
 type DataRow = {
     id: string,
     [key: string]: any
@@ -29,6 +25,10 @@ type Data = DataRow[];
 interface Response {
     data: Data,
     status: ExperimentStatus
+}
+
+export interface ExperimentEvents {
+    onResume: SignalDispatcher;
 }
 
 export class Experiment {
@@ -42,9 +42,7 @@ export class Experiment {
     private _onStarted = new SignalDispatcher();
     private _onTerminated = new SignalDispatcher();
     private _onHalt = new SignalDispatcher();
-    private _events: ExperimentEvents = {
-        onResume: new SignalDispatcher()
-    };
+    private _events: ExperimentEvents;
 
     private controller: Controller;
 
@@ -54,6 +52,9 @@ export class Experiment {
         this.data = [];
         this.recipe = recipe;
         this.controller = controller;
+        this._events = {
+            onResume: new SignalDispatcher(),
+        };
     }
 
     public async signal() {

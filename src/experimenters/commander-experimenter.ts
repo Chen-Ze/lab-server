@@ -4,6 +4,10 @@ import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
 import { ISignal } from "ste-signals";
 import { Controller } from "../controller/controller";
+import AwaitLock from 'await-lock';
+import stringify from 'csv-stringify';
+import { promises as fsPromises } from 'fs';
+
 
 export const commanderExperimenter = async (
     recipe: CommanderRecipe,
@@ -14,7 +18,8 @@ export const commanderExperimenter = async (
     events: ExperimentEvents
 ) => {
     let haltFlag = false;
-    const unsubscribe = onHalt.subscribe(() => haltFlag = true);
+    const unsubscribeHalt = onHalt.subscribe(() => haltFlag = true);
+
     for (const instrument of recipe.instruments) {
         switch (instrument.model) {
             case "Keithley 2400":
@@ -30,9 +35,43 @@ export const commanderExperimenter = async (
                 throw Error(`Unsupported instrument model type: ${instrument.model}.`);
         }
     }
+
+    if (recipe.dataFile) {
+        const columnsCsvString = await new Promise<string>((resolve, reject) => {
+            stringify([recipe.columns], (err, output) => {
+                resolve(output);
+            });
+        });
+        await fsPromises.appendFile(recipe.dataFile, columnsCsvString);
+    }
+
+    const lock = new AwaitLock();
+
+    const onDataWrapped = async (data: RawDataRow | RawDataRow[]) => {
+        if (!recipe.dataFile) {
+            onData(data);
+            return;
+        }
+        const rows = Array.isArray(data) ? data : [data];
+        const lines = rows.map(row => recipe.columns.map(column => row[column]));
+        await lock.acquireAsync();
+        try {
+            const csvString = await new Promise<string>((resolve, reject) => {
+                stringify(lines, (err, output) => {
+                    resolve(output);
+                });
+            });
+            await fsPromises.appendFile(recipe.dataFile, csvString);
+        } finally {
+            lock.release();
+        }
+        onData(data);
+    };
+
     for (const subrecipe of subsequence) {
         if (haltFlag) break;
-        await experimentExecuter(subrecipe, onData, onHalt, controller, events);
+        await experimentExecuter(subrecipe, onDataWrapped, onHalt, controller, events);
     }
-    unsubscribe();
+
+    unsubscribeHalt();
 }
