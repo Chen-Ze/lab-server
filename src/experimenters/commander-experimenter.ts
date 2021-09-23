@@ -36,16 +36,21 @@ export const commanderExperimenter = async (
         }
     }
 
-    if (recipe.dataFile) {
-        const columnsCsvString = await new Promise<string>((resolve, reject) => {
-            stringify([recipe.columns], (err, output) => {
-                resolve(output);
-            });
-        });
-        await fsPromises.appendFile(recipe.dataFile, columnsCsvString);
-    }
-
     const lock = new AwaitLock();
+
+    await lock.acquireAsync();
+    try {
+        if (recipe.dataFile) {
+            const columnsCsvString = await new Promise<string>((resolve, reject) => {
+                stringify([recipe.columns], (err, output) => {
+                    resolve(output);
+                });
+            });
+            await fsPromises.appendFile(recipe.dataFile, columnsCsvString);
+        }
+    } finally {
+        lock.release();
+    }
 
     const onDataWrapped = async (data: RawDataRow | RawDataRow[]) => {
         if (!recipe.dataFile) {
