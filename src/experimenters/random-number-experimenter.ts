@@ -1,7 +1,7 @@
 import { RandomNumberRecipe } from "material-science-experiment-recipes/lib/random-number-recipe";
 import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
-import { Experimenter } from "./experimenter";
+import { Experimenter, experimentExecuterProps } from "./experimenter";
 
 
 const getRandomArbitrary = (min: number, max: number) => {
@@ -36,7 +36,7 @@ export const randomNumberExperimenter: Experimenter<RandomNumberRecipe> = async 
 
         for (const subrecipe of subsequence) {
             if (haltFlag) break;
-            await experimentExecuter(subrecipe, onData, onHalt, controller, events);
+            await experimentExecuter(experimentExecuterProps(subrecipe, props));
         }
 
         await new Promise(resolve => setTimeout(resolve, 500));

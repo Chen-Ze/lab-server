@@ -4,11 +4,11 @@ import { promises as fsPromises } from 'fs';
 import { CommanderRecipe } from "material-science-experiment-recipes/lib/commander-recipe";
 import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
-import { Experimenter } from "./experimenter";
+import { Experimenter, experimentExecuterProps } from "./experimenter";
 
 
 export const commanderExperimenter: Experimenter<CommanderRecipe> = async (props) => {
-    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+    const { recipe, subsequence, onData, onError, onHalt, controller, events } = props;
 
     let haltFlag = false;
     const unsubscribeHalt = onHalt.subscribe(() => haltFlag = true);
@@ -16,13 +16,13 @@ export const commanderExperimenter: Experimenter<CommanderRecipe> = async (props
     for (const instrument of recipe.instruments) {
         switch (instrument.model) {
             case "Keithley 2400":
-                await controller.openModel(instrument.name, instrument.address, "Model2400");
+                await controller.openModel(instrument.name, instrument.address, "Model2400", onError);
                 break;
             case "Keithley 2600":
-                await controller.openModel(instrument.name, instrument.address, "Model2600");
+                await controller.openModel(instrument.name, instrument.address, "Model2600", onError);
                 break;
             case "GPIB":
-                await controller.open(instrument.name, instrument.address);
+                await controller.open(instrument.name, instrument.address, onError);
                 break;
             default:
                 throw Error(`Unsupported instrument model type: ${instrument.model}.`);
@@ -68,7 +68,7 @@ export const commanderExperimenter: Experimenter<CommanderRecipe> = async (props
 
     for (const subrecipe of subsequence) {
         if (haltFlag) break;
-        await experimentExecuter(subrecipe, onDataWrapped, onHalt, controller, events);
+        await experimentExecuter(experimentExecuterProps(subrecipe, props));
     }
 
     unsubscribeHalt();

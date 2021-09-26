@@ -6,7 +6,39 @@ import { Experiments } from './experiments';
 import { Controller } from '../controller/controller';
 import dotenv from 'dotenv';
 import fs from "fs";
+import winston from 'winston';
 
+
+winston.addColors({
+    error: 'red',
+    warn: 'yellow',
+    info: 'cyan',
+    debug: 'green'
+});
+
+const rootLogger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.prettyPrint(),
+        winston.format.colorize({ all: true })
+    ),
+    defaultMeta: { service: 'root' },
+    transports: [
+        new winston.transports.Console()
+    ],
+});
+
+const experimentLogger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.prettyPrint(),
+        winston.format.colorize({ all: true })
+    ),
+    defaultMeta: { service: 'experiment' },
+    transports: [
+        new winston.transports.Console()
+    ],
+});
 
 dotenv.config();
 
@@ -15,10 +47,14 @@ const PYTHON_SCRIPT_LOCATION = process.env.PYTHON_SCRIPT_LOCATION;
 
 const controller = new Controller(DEFAULT_CONTROLLER_URL);
 
+const rootErrorLogger = (e: any) => {
+    rootLogger.error(e);
+};
+
 export const router = express.Router();
 
 router.get('/server/available-addresses', async (req, res, next) => {
-    const list = await controller.communicate({ function: "list" });
+    const list = await controller.communicate({ function: "list" }, rootErrorLogger);
 
     res.json({
         availableAddresses: list
@@ -31,6 +67,7 @@ const experiments = new Experiments();
 
 router.post('/server/new-experiment', (req, res) => {
     const experimentId = getRandomId(MIN_EXPERIMENT_ID_LENGTH, experiments.getExperimentIdList());
+    experimentLogger.info(`Adding experiment: ${experimentId}`);
     experiments.addExperiment(experimentId, new Experiment(experimentId, req.body, controller));
     res.json({
         id: experimentId
@@ -39,16 +76,14 @@ router.post('/server/new-experiment', (req, res) => {
 
 router.get('/server/halt-experiment', (req, res) => {
     const id = req.query.id as string;
-    // tslint:disable-next-line:no-console
-    console.log(`halt-experiment: ${id}`);
+    experimentLogger.info(`Halting experiment: ${id}`);
     experiments.halt(id);
     res.send("End.");
 });
 
 router.get('/server/resume-experiment', (req, res) => {
     const id = req.query.id as string;
-    // tslint:disable-next-line:no-console
-    console.log(`resume-experiment: ${id}`);
+    experimentLogger.info(`Resuming experiment: ${id}`);
     experiments.resume(id);
     res.send("Resume.");
 });
@@ -71,8 +106,7 @@ router.get('/server/available-experiments', (req, res) => {
     experiments.triggerExperimentsChanged();
 
     req.on('close', () => {
-        // tslint:disable-next-line:no-console
-        console.log('available-experiments: req closed');
+        experimentLogger.info(`Request closed on available-experiments.`);
         unsubscribe();
         res.end();
     });
@@ -103,96 +137,65 @@ router.get('/server/watch-experiment', (req, res) => {
     };
     res.writeHead(200, headers);
 
-    const unsubscribe = experiment.onDataJot.subscribe(async (response) => {
+    const unsubscribeError = experiment.onError.subscribe(async (message) => {
+        res.write(`event: error\n`);
+        res.write(`data: ${JSON.stringify(message)}\n\n`);
+        res.flush();
+    });
+
+    const unsubscribeDataJot = experiment.onDataJot.subscribe(async (response) => {
         res.write(`event: update\n`);
         res.write(`data: ${JSON.stringify(response)}\n\n`);
         res.flush();
         if (await experiment.isTerminated()) {
-            // tslint:disable-next-line:no-console
-            console.log('watch-experiment: exp terminated');
-            unsubscribe();
+            experimentLogger.info(`Experiment ${experimentId} terminated.`);
+            unsubscribeDataJot();
+            unsubscribeError();
             res.end();
         }
     });
 
     req.on('close', () => {
-        // tslint:disable-next-line:no-console
-        console.log('watch-experiment: req closed');
-        unsubscribe();
+        experimentLogger.info(`Request closed on available-experiments.`);
+        unsubscribeDataJot();
+        unsubscribeError();
         res.end();
     });
 
     experiment.signal();
 });
 
-router.get('/server/events', async (req, res) => {
-    // tslint:disable-next-line:no-console
-    console.log('Got /events');
-    req.on('close', () => {
-        // tslint:disable-next-line:no-console
-        console.log("res closed");
-    });
-    const headers = {
-        'Content-Type': 'text/event-stream',
-        'Connection': 'keep-alive',
-        'Cache-Control': 'no-cache',
-        'X-Accel-Buffering': 'no'
-    };
-    res.writeHead(200, headers);
-
-    // Tell the client to retry every 10 seconds if connectivity is lost
-    res.write('retry: 10000\n\n');
-    let count = 0;
-
-    while (true) {
-        const data = { ia: count, ib: count + 1 };
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // tslint:disable-next-line:no-console
-        console.log('Emit', ++count);
-        // Emit an SSE that contains the current 'count' as a string
-        res.write(`event: update\n`);
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
-        res.flush();
-        if (count === 5) break;
-    }
-
-    res.write(`event: terminate\n`);
-    res.write(`data: \n\n`);
-
-    res.end();
-});
-
 router.get('/server/open', async (req, res, next) => {
     const { name, address }: { name: string, address: string }
         = req.query as { name: string, address: string };
 
-    res.json(await controller.open(name, address));
+    res.json(await controller.open(name, address, rootErrorLogger));
 });
 
 router.get('/server/open-model', async (req, res, next) => {
     const { name, address, model }: { name: string, address: string, model: string }
         = req.query as { name: string, address: string, model: string };
 
-    res.json(await controller.openModel(name, address, model));
+    res.json(await controller.openModel(name, address, model, rootErrorLogger));
 });
 
 router.get('/server/query', async (req, res, next) => {
     const { name, command }: { name: string, command: string }
         = req.query as { name: string, command: string };
 
-    res.json(await controller.query(name, command));
+    res.json(await controller.query(name, command, rootErrorLogger));
 });
 
 router.get('/server/query-model', async (req, res, next) => {
     const { name, model, ...query }: { name: string, model: string, [key: string]: string }
         = req.query as { name: string, model: string, [key: string]: string };
 
-    res.json(await controller.queryModel(name, model, query));
+    res.json(await controller.queryModel(name, model, query, rootErrorLogger));
 });
 
 router.get('/server/communicate', async (req, res, next) => {
     const query = req.query as { [key: string]: string };
-    res.json(await controller.communicate(query));
+    res.json(await controller.communicate(query, rootErrorLogger));
 });
 
 router.get('/server/python-scripts', (req, res, next) => {

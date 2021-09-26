@@ -8,7 +8,7 @@ const spectrumIndex: {
 } = {};
 
 export const lightFieldExperimenter: Experimenter<LightFieldRecipe> = async (props) => {
-    const { recipe, subsequence, onData, onHalt, controller, events, id } = props;
+    const { recipe, subsequence, onData, onError, onHalt, controller, events, id } = props;
 
     const publicRows: RawDataRow[] = [];
 
@@ -16,7 +16,7 @@ export const lightFieldExperimenter: Experimenter<LightFieldRecipe> = async (pro
         case LightFieldTask.ActivateWindow:
             await controller.queryModel("LIGHT_FIElD", "LightField", {
                 task: "activate",
-            });
+            }, onError);
             break;
         case LightFieldTask.SaveSpectrum:
             if (!spectrumIndex[id]) {
@@ -26,7 +26,7 @@ export const lightFieldExperimenter: Experimenter<LightFieldRecipe> = async (pro
                 task: "save-spectrum",
                 dir: recipe.payload.directory || __dirname,
                 filename: `${recipe.payload.prefix || ''}${spectrumIndex[id]++}`
-            });
+            }, onError);
             const spectrum: number[] = response.spectrum;
             const wavelengths: number[] = response.wavelengths;
             const zippedData = spectrum.map((value, i) => ({

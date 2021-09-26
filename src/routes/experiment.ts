@@ -40,6 +40,7 @@ export class Experiment {
     private recipe: WrappedRecipe;
 
     private _onDataJot = new SimpleEventDispatcher<Response>();
+    private _onError = new SimpleEventDispatcher<any>();
     private _onStarted = new SignalDispatcher();
     private _onTerminated = new SignalDispatcher();
     private _onHalt = new SignalDispatcher();
@@ -83,14 +84,23 @@ export class Experiment {
     private async execute() {
         this._onStarted.dispatch();
 
-        await experimentExecuter(this.recipe, (rawRows) => {
-            const rows = Array.isArray(rawRows) ? rawRows : [rawRows];
-            rows.forEach(row => this.data.push({ id: uuidv4(), ...row }));
-            this._onDataJot.dispatch({
-                data: this.data,
-                status: this.status
-            });
-        }, this.onHalt, this.controller, this._events)
+        await experimentExecuter({
+            recipe: this.recipe,
+            onData: (rawRows) => {
+                const rows = Array.isArray(rawRows) ? rawRows : [rawRows];
+                rows.forEach(row => this.data.push({ id: uuidv4(), ...row }));
+                this._onDataJot.dispatch({
+                    data: this.data,
+                    status: this.status
+                });
+            },
+            onError: (message: any) => {
+                this._onError.dispatch(message)
+            },
+            onHalt: this.onHalt,
+            controller: this.controller,
+            events: this._events
+        })
 
         await this.statusLock.acquireAsync();
         try {
@@ -107,6 +117,10 @@ export class Experiment {
 
     public get onDataJot() {
         return this._onDataJot.asEvent();
+    }
+
+    public get onError() {
+        return this._onError.asEvent();
     }
 
     public async isTerminated() {

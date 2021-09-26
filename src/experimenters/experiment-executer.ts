@@ -17,7 +17,7 @@ import { pauseExperimenter } from "./pause-experimenter";
 import { isLightFieldRecipe } from "material-science-experiment-recipes/lib/lightfield-recipe";
 import { lightFieldExperimenter } from "./light-field-experimenter";
 import { Recipe } from "material-science-experiment-recipes/lib/recipe";
-import { Experimenter } from "./experimenter";
+import { Experimenter, ExperimentExecuter } from "./experimenter";
 
 
 type RecipeTypeGuard<T extends Recipe> = (recipe: Recipe) => recipe is T
@@ -49,19 +49,16 @@ const dispatchers: {
     }
 ];
 
-export const experimentExecuter = async (
-    recipe: WrappedRecipe,
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const experimentExecuter: ExperimentExecuter = async (props) => {
+    const { recipe, onData, onError, onHalt, controller, events } = props;
+
     for (const {filter, experimenter} of dispatchers) {
         if (filter(recipe.recipe)) {
             await experimenter({
                 recipe: recipe.recipe,
                 subsequence: recipe.subsequence,
                 onData,
+                onError,
                 onHalt,
                 controller,
                 events,

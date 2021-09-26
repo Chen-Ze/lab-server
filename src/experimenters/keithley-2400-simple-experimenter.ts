@@ -2,13 +2,13 @@ import { Keithley2400SimpleRecipe } from "material-science-experiment-recipes/li
 import { isOffChannelRecipe, isSweepChannelRecipe, SMUMode } from "material-science-experiment-recipes/lib/keithley-simple/smu-recipe";
 import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
-import { Experimenter } from "./experimenter";
+import { Experimenter, experimentExecuterProps } from "./experimenter";
 import { measurementFlag, smuRecipeToArray } from "./keithley-smu";
 import { sleep } from "./util";
 
 
 export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleRecipe> = async (props) => {
-    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+    const { recipe, subsequence, onData, onError, onHalt, controller, events } = props;
 
     let haltFlag = false;
     const unsubscribe = onHalt.subscribe(() => haltFlag = true);
@@ -24,13 +24,13 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
     await controller.queryModel(recipe.name, "Model2400", {
         task: "set-integration-time",
         value: recipe.integrationTime
-    });
+    }, onError);
 
     if (isOffChannelRecipe(recipe.smuRecipe)) {
         await controller.queryModel(recipe.name, "Model2400", {
             task: "set-smu-off",
             value: recipe.integrationTime
-        });
+        }, onError);
     }
 
     if (Number(recipe.smuRecipe.compliance)) {
@@ -38,13 +38,13 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
             await controller.queryModel(recipe.name, "Model2400", {
                 task: "set-smu-current-compliance",
                 value: recipe.smuRecipe.compliance
-            });
+            }, onError);
         }
         if (recipe.smuRecipe.smuMode === SMUMode.FixedCurrent || recipe.smuRecipe.smuMode === SMUMode.SweepCurrent) {
             await controller.queryModel(recipe.name, "Model2400", {
                 task: "set-smu-voltage-compliance",
                 value: recipe.smuRecipe.compliance
-            });
+            }, onError);
         }
     }
 
@@ -59,13 +59,13 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
                 await controller.queryModel(recipe.name, "Model2400", {
                     task: "set-smu-voltage",
                     value: String(smuValue)
-                });
+                }, onError);
             }
             if (recipe.smuRecipe.smuMode === SMUMode.FixedCurrent || recipe.smuRecipe.smuMode === SMUMode.SweepCurrent) {
                 await controller.queryModel(recipe.name, "Model2400", {
                     task: "set-smu-current",
                     value: String(smuValue)
-                });
+                }, onError);
             }
             await sleep(Number(recipe.wait));
 
@@ -73,12 +73,12 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
                 "Voltage": measureVoltage ? (
                     Number((await controller.queryModel(recipe.name, "Model2400", {
                         task: "measure-smu-voltage",
-                    })).read)
+                    }, onError)).read)
                 ) : NaN,
                 "Current": measureCurrent ? (
                     Number((await controller.queryModel(recipe.name, "Model2400", {
                         task: "measure-smu-current",
-                    })).read)
+                    }, onError)).read)
                 ) : NaN,
             };
 
@@ -95,7 +95,7 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
 
         for (const subrecipe of subsequence) {
             if (haltFlag) break;
-            await experimentExecuter(subrecipe, onData, onHalt, controller, events);
+            await experimentExecuter(experimentExecuterProps(subrecipe, props));
         }
     }
 
@@ -106,7 +106,7 @@ export const keithley2400SimpleExperimenter: Experimenter<Keithley2400SimpleReci
             await controller.queryModel(recipe.name, "Model2400", {
                 task: "set-smu-off",
                 value: recipe.integrationTime
-            });
+            }, onError);
         }
     }
 
