@@ -1,19 +1,12 @@
-import { PythonSimpleRecipe } from "material-science-experiment-recipes/lib/python-simple-recipe";
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { Controller } from "../controller/controller";
-import { ISignal } from "ste-signals";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
 import { spawn } from "child_process";
+import { PythonSimpleRecipe } from "material-science-experiment-recipes/lib/python-simple-recipe";
+import { RawDataRow } from "../routes/experiment";
+import { Experimenter } from "./experimenter";
 
 
-export const pythonExperimenter = async (
-    recipe: PythonSimpleRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const pythonExperimenter: Experimenter<PythonSimpleRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+
     let haltFlag = false;
     const unsubscribe = onHalt.subscribe(() => haltFlag = true);
 

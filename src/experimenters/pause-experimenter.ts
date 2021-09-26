@@ -1,17 +1,9 @@
 import { PauseRecipe } from "material-science-experiment-recipes/lib/pause-recipe";
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { ISignal } from "ste-signals";
-import { Controller } from "../controller/controller";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
+import { Experimenter } from "./experimenter";
 
-export const pauseExperimenter = async (
-    recipe: PauseRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const pauseExperimenter: Experimenter<PauseRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+
     let unsubscribeHalt: () => void;
     let unsubscribeResume: () => void;
 

@@ -1,22 +1,15 @@
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { CommanderRecipe } from "material-science-experiment-recipes/lib/commander-recipe";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
-import { experimentExecuter } from "./experiment-executer";
-import { ISignal } from "ste-signals";
-import { Controller } from "../controller/controller";
 import AwaitLock from 'await-lock';
 import stringify from 'csv-stringify';
 import { promises as fsPromises } from 'fs';
+import { CommanderRecipe } from "material-science-experiment-recipes/lib/commander-recipe";
+import { RawDataRow } from "../routes/experiment";
+import { experimentExecuter } from "./experiment-executer";
+import { Experimenter } from "./experimenter";
 
 
-export const commanderExperimenter = async (
-    recipe: CommanderRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const commanderExperimenter: Experimenter<CommanderRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+
     let haltFlag = false;
     const unsubscribeHalt = onHalt.subscribe(() => haltFlag = true);
 

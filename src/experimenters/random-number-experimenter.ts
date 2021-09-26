@@ -1,23 +1,16 @@
 import { RandomNumberRecipe } from "material-science-experiment-recipes/lib/random-number-recipe";
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { Controller } from "../controller/controller";
-import { ISignal } from "ste-signals";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
+import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
+import { Experimenter } from "./experimenter";
 
 
 const getRandomArbitrary = (min: number, max: number) => {
     return Math.random() * (max - min) + min;
 }
 
-export const randomNumberExperimenter = async (
-    recipe: RandomNumberRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const randomNumberExperimenter: Experimenter<RandomNumberRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+
     let haltFlag = false;
     const unsubscribe = onHalt.subscribe(() => haltFlag = true);
 

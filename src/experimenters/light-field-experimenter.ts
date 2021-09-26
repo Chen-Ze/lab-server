@@ -1,23 +1,15 @@
 import { LightFieldRecipe, LightFieldTask } from "material-science-experiment-recipes/lib/lightfield-recipe";
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { Controller } from "../controller/controller";
-import { ISignal } from "ste-signals";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
+import { RawDataRow } from "../routes/experiment";
+import { Experimenter } from "./experimenter";
 
 
 const spectrumIndex: {
     [key: string]: number
 } = {};
 
-export const lightFieldExperimenter = async (
-    recipe: LightFieldRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents,
-    id: string
-) => {
+export const lightFieldExperimenter: Experimenter<LightFieldRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events, id } = props;
+
     const publicRows: RawDataRow[] = [];
 
     switch (recipe.task) {

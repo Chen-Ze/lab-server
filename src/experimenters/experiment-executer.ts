@@ -16,6 +16,38 @@ import { isPauseRecipe } from "material-science-experiment-recipes/lib/pause-rec
 import { pauseExperimenter } from "./pause-experimenter";
 import { isLightFieldRecipe } from "material-science-experiment-recipes/lib/lightfield-recipe";
 import { lightFieldExperimenter } from "./light-field-experimenter";
+import { Recipe } from "material-science-experiment-recipes/lib/recipe";
+import { Experimenter } from "./experimenter";
+
+
+type RecipeTypeGuard<T extends Recipe> = (recipe: Recipe) => recipe is T
+
+const dispatchers: {
+    filter: RecipeTypeGuard<Recipe>,
+    experimenter: Experimenter<Recipe>
+}[] = [{
+        filter: isRandomNumberRecipe,
+        experimenter: randomNumberExperimenter
+    }, {
+        filter: isCommanderRecipe,
+        experimenter: commanderExperimenter
+    }, {
+        filter: isKeithley2636SimpleRecipe,
+        experimenter: keithley2600SimpleExperimenter
+    }, {
+        filter: isKeithley2400SimpleRecipe,
+        experimenter: keithley2400SimpleExperimenter
+    }, {
+        filter: isPythonRecipe,
+        experimenter: pythonExperimenter
+    }, {
+        filter: isPauseRecipe,
+        experimenter: pauseExperimenter,
+    },  {
+        filter: isLightFieldRecipe,
+        experimenter: lightFieldExperimenter,
+    }
+];
 
 export const experimentExecuter = async (
     recipe: WrappedRecipe,
@@ -24,32 +56,18 @@ export const experimentExecuter = async (
     controller: Controller,
     events: ExperimentEvents
 ) => {
-    if (isRandomNumberRecipe(recipe.recipe)) {
-        await randomNumberExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isCommanderRecipe(recipe.recipe)) {
-        await commanderExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isKeithley2636SimpleRecipe(recipe.recipe)) {
-        await keithley2600SimpleExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isKeithley2400SimpleRecipe(recipe.recipe)) {
-        await keithley2400SimpleExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isPythonRecipe(recipe.recipe)) {
-        await pythonExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isPauseRecipe(recipe.recipe)) {
-        await pauseExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events);
-        return;
-    }
-    if (isLightFieldRecipe(recipe.recipe)) {
-        await lightFieldExperimenter(recipe.recipe, recipe.subsequence, onData, onHalt, controller, events, String(recipe.id));
-        return;
+    for (const {filter, experimenter} of dispatchers) {
+        if (filter(recipe.recipe)) {
+            await experimenter({
+                recipe: recipe.recipe,
+                subsequence: recipe.subsequence,
+                onData,
+                onHalt,
+                controller,
+                events,
+                id: String(recipe.id)
+            });
+            break;
+        }
     }
 }

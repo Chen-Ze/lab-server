@@ -1,22 +1,15 @@
 import { Keithley2636SimpleRecipe } from "material-science-experiment-recipes/lib/keithley-2636-simple-recipe";
-import { isFixedChannelRecipe, isOffChannelRecipe, isSweepChannelRecipe, SMUMode } from "material-science-experiment-recipes/lib/keithley-simple/smu-recipe";
-import { WrappedRecipe } from "material-science-experiment-recipes/lib/recipe";
-import { Controller } from "../controller/controller";
-import { ISignal } from "ste-signals";
-import { ExperimentEvents, RawDataRow } from "../routes/experiment";
+import { isOffChannelRecipe, isSweepChannelRecipe, SMUMode } from "material-science-experiment-recipes/lib/keithley-simple/smu-recipe";
+import { RawDataRow } from "../routes/experiment";
 import { experimentExecuter } from "./experiment-executer";
+import { Experimenter } from "./experimenter";
 import { measurementFlag, smuRecipeToArray } from "./keithley-smu";
 import { arrayDirectProduct, sleep, zipArray } from "./util";
 
 
-export const keithley2600SimpleExperimenter = async (
-    recipe: Keithley2636SimpleRecipe,
-    subsequence: WrappedRecipe[],
-    onData: (data: RawDataRow | RawDataRow[]) => void,
-    onHalt: ISignal,
-    controller: Controller,
-    events: ExperimentEvents
-) => {
+export const keithley2600SimpleExperimenter: Experimenter<Keithley2636SimpleRecipe> = async (props) => {
+    const { recipe, subsequence, onData, onHalt, controller, events } = props;
+
     let haltFlag = false;
     const unsubscribe = onHalt.subscribe(() => haltFlag = true);
 
