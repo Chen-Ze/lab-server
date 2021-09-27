@@ -19,6 +19,7 @@
         "compression": "^1.7.4",
         "csv-stringify": "^5.6.5",
         "dotenv": "^10.0.0",
+        "drivelist": "^9.2.4",
         "express": "^4.17.1",
         "loglevel": "^1.7.1",
         "material-science-experiment-recipes": "^1.0.26",

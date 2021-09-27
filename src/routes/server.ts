@@ -7,6 +7,7 @@ import { Controller } from '../controller/controller';
 import dotenv from 'dotenv';
 import fs from "fs";
 import winston from 'winston';
+import { list as listdrives } from 'drivelist';
 
 
 winston.addColors({
@@ -202,4 +203,21 @@ router.get('/server/python-scripts', (req, res, next) => {
     fs.readdir(PYTHON_SCRIPT_LOCATION, (err, files) => {
         res.json(files);
     });
+});
+
+router.get('/server/list-directory', async (req, res, next) => {
+    const path: string = req.query.path as string;
+    if (!path) {
+        try {
+            const drives = await listdrives();
+            res.json(drives.map(drive => drive.mountpoints.map(mountpoint => mountpoint.path)).flat());
+        } catch (e) {
+            rootLogger.error((e as Error).message);
+        }
+    } else {
+        fs.readdir(path, (err, files) => {
+            if (err) rootLogger.error((err as Error).message);
+            res.json(files);
+        });
+    }
 });
